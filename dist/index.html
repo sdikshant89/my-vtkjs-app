@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VTK Rendering with UI</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header style="background-color: #333; color: white; padding: 20px; display: flex; justify-content: center;">
+    <h1 style="">Render IT</h1>
+</header>
+<div class="tab" style="overflow: hidden; border: 1px solid #ccc; background-color: #f1f1f1;">
+    <button class="tablinks" onclick="openTab(event, 'vtkContent')" style="background-color: inherit; float: left; border: none; outline: none; cursor: pointer; padding: 14px 16px; transition: 0.3s;">Volume Contour</button>
+    <button class="tablinks" onclick="openTab(event, 'itkContent')" style="background-color: inherit; float: left; border: none; outline: none; cursor: pointer; padding: 14px 16px; transition: 0.3s;">ABCD Content</button>
+    <!-- Add more tabs as needed -->
+</div>
+<div id="vtkContent" class="tabcontent">
+</div>
+<div id="itkContent" class="tabcontent">
+</div>
+<dialog open id="control-panel" class="control-panel" style="position: absolute; top: 20vh; left: -85vw; ">
+    <h3>Control Panel</h3>
+    <div>
+        <label for="isoValue">ISO Value:</label>
+        <input type="range" min="0" max="1" step="0.01" value="0.33" class="isoValue">
+    </div>
+</dialog>
+<script src="./main.js"></script>
+</body>
+</html>
