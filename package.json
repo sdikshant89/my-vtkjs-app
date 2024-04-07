@@ -1,0 +1,24 @@
+{
+  "name": "my-vtkjs-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "build": "webpack --progress --mode=development",
+    "start": "webpack serve --progress --mode=development --static=dist",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@kitware/vtk.js": "^30.3.1",
+    "itk": "^9.6.1"
+  },
+  "devDependencies": {
+    "html-loader": "^5.0.0",
+    "kw-web-suite": "^1.0.2",
+    "webpack": "^5.91.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.0.4"
+  }
+}
