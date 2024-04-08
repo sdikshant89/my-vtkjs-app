@@ -1,4 +1,5 @@
 import "@kitware/vtk.js/favicon";
+import "@kitware/vtk.js/Rendering/Profiles/Volume";
 import "@kitware/vtk.js/Rendering/Profiles/Geometry";
 import "@kitware/vtk.js/IO/Core/DataAccessHelper/HtmlDataAccessHelper";
 import "@kitware/vtk.js/IO/Core/DataAccessHelper/HttpDataAccessHelper";
@@ -15,6 +16,8 @@ import vtkPiecewiseFunction from "@kitware/vtk.js/Common/DataModel/PiecewiseFunc
 import vtkVolume from "@kitware/vtk.js/Rendering/Core/Volume";
 import vtkVolumeMapper from "@kitware/vtk.js/Rendering/Core/VolumeMapper";
 import vtkITKHelper from "@kitware/vtk.js/Common/DataModel/ITKHelper";
+import vtkPlane from "@kitware/vtk.js/Common/DataModel/Plane";
+import vtkSphereSource from "@kitware/vtk.js/Filters/Sources/SphereSource";
 import vtkLiteHttpDataAccessHelper from "@kitware/vtk.js/IO/Core/DataAccessHelper/LiteHttpDataAccessHelper";
 
 window.openTab = function (evt, tabName) {
@@ -25,10 +28,23 @@ window.openTab = function (evt, tabName) {
   document.getElementById(tabName).style.display = "block";
   if (tabName == "vtkContent") {
     renderVTKContent();
-  } else {
+  } else if (tabName == "itkContent") {
     renderItkContent();
+  } else {
+    renderPolyContent();
   }
-  //const controlPanelContent = document.getElementById("");
+  const controlPanelContent = document.getElementsByClassName("control-panel");
+  for (let i = 0; i < controlPanelContent.length; i++) {
+    if (controlPanelContent[i]) {
+      controlPanelContent[i].style.display = "none";
+    }
+  }
+  const controlPanelElement = document.getElementById(
+    tabName + "_controlPanel"
+  );
+  if (controlPanelElement) {
+    controlPanelElement.style.display = "block";
+  }
 };
 
 function renderVTKContent() {
@@ -64,12 +80,15 @@ function renderVTKContent() {
   }
 
   const reader = vtkHttpDataSetReader.newInstance({ fetchGzip: true });
+  //const reader = vtkXMLImageDataReader.newInstance();
   marchingCube.setInputConnection(reader.getOutputPort());
 
   reader
     .setUrl(`https://kitware.github.io/vtk-js/data/volume/headsq.vti`, {
       loadData: true,
     })
+    // reader
+    //   .setUrl(`./mri_ventricles.vti`)
     .then(() => {
       const data = reader.getOutputData();
       const dataRange = data.getPointData().getScalars().getRange();
@@ -88,6 +107,9 @@ function renderVTKContent() {
         .set({ position: [1, 1, 1], viewUp: [0, 0, -1] });
       renderer.resetCamera();
       renderWindow.render();
+    })
+    .catch((error) => {
+      console.error("Error loading VTI file:", error);
     });
 
   //global.fullScreen = fullScreenRenderWindow;
@@ -166,6 +188,205 @@ function renderItkContent() {
   global.ofun = ofun;
   global.renderer = renderer;
   global.renderWindow = renderWindow;
+}
+
+function renderPolyContent() {
+  const polyContainer = document.getElementById("polyContent");
+  polyContainer.style.width = "100vw";
+  polyContainer.style.height = "90vh";
+
+  const fullScreenRenderer = vtkFullScreenRenderWindow.newInstance({
+    background: [0.3, 0.3, 0.3],
+    container: polyContainer,
+  });
+
+  //fullScreenRenderer.addController(controlPanel);
+
+  const clipPlane1 = vtkPlane.newInstance();
+  const clipPlane2 = vtkPlane.newInstance();
+  let clipPlane1Position = 0;
+  let clipPlane2Position = 0;
+  const clipPlane1Normal = [-1, 1, 0];
+  const clipPlane2Normal = [0, 0, 1];
+
+  function getSphereActor({
+    center,
+    radius,
+    phiResolution,
+    thetaResolution,
+    opacity,
+  }) {
+    const sphereSource = vtkSphereSource.newInstance({
+      center,
+      radius,
+      phiResolution,
+      thetaResolution,
+    });
+    sphereSource.setCenter(center);
+
+    const actor = vtkActor.newInstance();
+    const mapper = vtkMapper.newInstance();
+
+    actor.getProperty().setOpacity(opacity);
+
+    mapper.setInputConnection(sphereSource.getOutputPort());
+    actor.setMapper(mapper);
+
+    const polyData = sphereSource.getOutputData();
+    const data = polyData.getPoints().getData();
+
+    return { actor, data, mapper };
+  }
+
+  const { actor: cubeActor, mapper: sphereMapper } = getSphereActor({
+    center: [125, 125, 200],
+    radius: 50,
+    phiResolution: 30,
+    thetaResolution: 30,
+    opacity: 1,
+    edgeVisibility: true,
+  });
+
+  cubeActor.setMapper(sphereMapper);
+
+  const actor = vtkVolume.newInstance();
+  const mapper = vtkVolumeMapper.newInstance({
+    sampleDistance: 1.1,
+  });
+
+  const renderer = fullScreenRenderer.getRenderer();
+  const renderWindow = fullScreenRenderer.getRenderWindow();
+
+  renderer.addActor(cubeActor);
+
+  const ctfun = vtkColorTransferFunction.newInstance();
+  ctfun.addRGBPoint(0, 85 / 255.0, 0, 0);
+  ctfun.addRGBPoint(95, 1.0, 1.0, 1.0);
+  ctfun.addRGBPoint(225, 0.66, 0.66, 0.5);
+  ctfun.addRGBPoint(255, 0.3, 1.0, 0.5);
+  const ofun = vtkPiecewiseFunction.newInstance();
+  ofun.addPoint(0.0, 0.0);
+  ofun.addPoint(255.0, 1.0);
+  actor.getProperty().setRGBTransferFunction(0, ctfun);
+  actor.getProperty().setScalarOpacity(0, ofun);
+  actor.getProperty().setScalarOpacityUnitDistance(0, 3.0);
+  actor.getProperty().setInterpolationTypeToLinear();
+  actor.getProperty().setUseGradientOpacity(0, true);
+  actor.getProperty().setGradientOpacityMinimumValue(0, 2);
+  actor.getProperty().setGradientOpacityMinimumOpacity(0, 0.0);
+  actor.getProperty().setGradientOpacityMaximumValue(0, 20);
+  actor.getProperty().setGradientOpacityMaximumOpacity(0, 1.0);
+  actor.getProperty().setShade(true);
+  actor.getProperty().setAmbient(0.2);
+  actor.getProperty().setDiffuse(0.7);
+  actor.getProperty().setSpecular(0.3);
+  actor.getProperty().setSpecularPower(8.0);
+
+  const reader = vtkHttpDataSetReader.newInstance({
+    fetchGzip: true,
+  });
+
+  actor.setMapper(mapper);
+  mapper.setInputConnection(reader.getOutputPort());
+
+  reader
+    .setUrl("https://kitware.github.io/vtk-js/data/volume/LIDC2.vti")
+    .then(() => {
+      reader.loadData().then(() => {
+        const data = reader.getOutputData();
+        const extent = data.getExtent();
+        const spacing = data.getSpacing();
+
+        const sizeX = extent[1] * spacing[0];
+        const sizeY = extent[3] * spacing[1];
+
+        const clipPlane1Origin = [
+          clipPlane1Position * clipPlane1Normal[0],
+          clipPlane1Position * clipPlane1Normal[1],
+          clipPlane1Position * clipPlane1Normal[2],
+        ];
+        const clipPlane2Origin = [
+          clipPlane2Position * clipPlane2Normal[0],
+          clipPlane2Position * clipPlane2Normal[1],
+          clipPlane2Position * clipPlane2Normal[2],
+        ];
+
+        clipPlane1.setNormal(clipPlane1Normal);
+        clipPlane1.setOrigin(clipPlane1Origin);
+        clipPlane2.setNormal(clipPlane2Normal);
+        clipPlane2.setOrigin(clipPlane2Origin);
+
+        mapper.addClippingPlane(clipPlane1);
+        mapper.addClippingPlane(clipPlane2);
+
+        sphereMapper.addClippingPlane(clipPlane1);
+        sphereMapper.addClippingPlane(clipPlane2);
+
+        renderer.addVolume(actor);
+        renderer.resetCamera();
+
+        renderWindow.render();
+
+        let el = document.querySelector(".plane1Position");
+        el.setAttribute("min", -sizeX);
+        el.setAttribute("max", sizeX);
+        el.setAttribute("value", clipPlane1Position);
+
+        el = document.querySelector(".plane2Position");
+        el.setAttribute("min", -sizeY);
+        el.setAttribute("max", sizeY);
+        el.setAttribute("value", clipPlane2Position);
+      });
+    });
+
+  // TEST PARALLEL ==============
+
+  let isParallel = false;
+  const button = document.querySelector(".text");
+
+  function toggleParallel() {
+    isParallel = !isParallel;
+    const camera = renderer.getActiveCamera();
+    camera.setParallelProjection(isParallel);
+
+    renderer.resetCamera();
+
+    button.innerText = `(${isParallel ? "on" : "off"})`;
+
+    renderWindow.render();
+  }
+
+  document.querySelector(".plane1Position").addEventListener("input", (e) => {
+    clipPlane1Position = Number(e.target.value);
+    const clipPlane1Origin = [
+      clipPlane1Position * clipPlane1Normal[0],
+      clipPlane1Position * clipPlane1Normal[1],
+      clipPlane1Position * clipPlane1Normal[2],
+    ];
+
+    clipPlane1.setOrigin(clipPlane1Origin);
+    renderWindow.render();
+  });
+
+  document.querySelector(".plane2Position").addEventListener("input", (e) => {
+    clipPlane2Position = Number(e.target.value);
+
+    const clipPlane2Origin = [
+      clipPlane2Position * clipPlane2Normal[0],
+      clipPlane2Position * clipPlane2Normal[1],
+      clipPlane2Position * clipPlane2Normal[2],
+    ];
+
+    clipPlane2.setOrigin(clipPlane2Origin);
+    renderWindow.render();
+  });
+
+  global.source = reader;
+  global.mapper = mapper;
+  global.actor = actor;
+  global.renderer = renderer;
+  global.renderWindow = renderWindow;
+  global.toggleParallel = toggleParallel;
 }
 
 window.onload = renderVTKContent;

@@ -5,27 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VTK Rendering with UI</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: "Verdana", sans-serif;
+        }
+    </style>
 </head>
 <body>
-<header style="background-color: #333; color: white; padding: 20px; display: flex; justify-content: center;">
-    <h1 style="">Render IT</h1>
+<header style="background-color: #333; color: white; padding: 2px; display: flex; justify-content: center;">
+    <h1>Render IT</h1>
 </header>
 <div class="tab" style="overflow: hidden; border: 1px solid #ccc; background-color: #f1f1f1;">
     <button class="tablinks" onclick="openTab(event, 'vtkContent')" style="background-color: inherit; float: left; border: none; outline: none; cursor: pointer; padding: 14px 16px; transition: 0.3s;">Volume Contour</button>
-    <button class="tablinks" onclick="openTab(event, 'itkContent')" style="background-color: inherit; float: left; border: none; outline: none; cursor: pointer; padding: 14px 16px; transition: 0.3s;">ABCD Content</button>
-    <!-- Add more tabs as needed -->
+    <button class="tablinks" onclick="openTab(event, 'itkContent')" style="background-color: inherit; float: left; border: none; outline: none; cursor: pointer; padding: 14px 16px; transition: 0.3s;">ITK-WASM Volume</button>
+    <button class="tablinks" onclick="openTab(event, 'polyContent')" style="background-color: inherit; float: left; border: none; outline: none; cursor: pointer; padding: 14px 16px; transition: 0.3s;">ITK-WASM Volume</button>
 </div>
 <div id="vtkContent" class="tabcontent">
 </div>
 <div id="itkContent" class="tabcontent">
 </div>
-<dialog open id="control-panel" class="control-panel" style="position: absolute; top: 20vh; left: -85vw; ">
-    <h3>Control Panel</h3>
+<div id="polyContent" class="tabcontent">
+</div>
+<dialog open id="vtkContent_controlPanel" class="control-panel" style="position: absolute; top: 15vh; left: -85vw; ">
+    <h3 style="padding-top: -10vh;">Control Panel</h3>
     <div>
         <label for="isoValue">ISO Value:</label>
         <input type="range" min="0" max="1" step="0.01" value="0.33" class="isoValue">
     </div>
 </dialog>
+<dialog close id="polyContent_controlPanel" class="control-panel" style="position: absolute; top: 15vh; left: -89vw; ">
+    <h3 style="padding-top: -10vh;">Control Panel</h3>
+    <div>
+        <label for="plane1Position" style="display: block;">Plane 1 Position:</label>
+        <input type="range" class="plane1Position" value="0" style="display: block;">
+        <label for="plane2Position" style="display: block; padding-top: 10px;">Plane 2 Position:</label>
+        <input type="range" class="plane2Position" value="0" style="display: block;">
+      </div>
+</dialog>
+
 <script src="./main.js"></script>
 </body>
 </html>
