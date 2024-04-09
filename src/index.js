@@ -20,6 +20,14 @@ import vtkPlane from "@kitware/vtk.js/Common/DataModel/Plane";
 import vtkSphereSource from "@kitware/vtk.js/Filters/Sources/SphereSource";
 import vtkLiteHttpDataAccessHelper from "@kitware/vtk.js/IO/Core/DataAccessHelper/LiteHttpDataAccessHelper";
 
+window.openDialog = function (evt) {
+  document.getElementById("info").style.display = "block";
+};
+
+window.closeDialog = function () {
+  document.getElementById("info").style.display = "none";
+};
+
 window.openTab = function (evt, tabName) {
   const tabcontent = document.getElementsByClassName("tabcontent");
   for (let i = 0; i < tabcontent.length; i++) {
@@ -45,6 +53,28 @@ window.openTab = function (evt, tabName) {
   if (controlPanelElement) {
     controlPanelElement.style.display = "block";
   }
+
+  var dialogTitle = document.getElementById("dialogTitle");
+  var dialogContent = document.getElementById("dialogContent");
+  switch (tabName) {
+    case "vtkContent":
+      dialogTitle.innerText = "Volume Contour Rendering";
+      dialogContent.innerText =
+        "VolumeContour focuses on visualizing volumetric data by representing isocontours, which are surfaces of constant scalar value within the volume";
+      break;
+    case "itkContent":
+      dialogTitle.innerText = "ITK WASM Volume";
+      dialogContent.innerText =
+        "ItkWasmVolume utilizes the Insight Segmentation and Registration Toolkit (ITK) for volume visualization in web applications. ";
+      break;
+    case "polyContent":
+      dialogTitle.innerText = "Volume Rendering With PolyData";
+      dialogContent.innerText =
+        "Volume rendering with polydata involves the direct visualization of volumetric data without the need for intermediate surface extraction.";
+      break;
+    default:
+      break;
+  }
 };
 
 function renderVTKContent() {
@@ -59,8 +89,6 @@ function renderVTKContent() {
 
   const renderWindow = fullScreenRenderWindow.getRenderWindow();
   const renderer = fullScreenRenderWindow.getRenderer();
-
-  //fullScreenRenderWindow.addController(controlPanel);
 
   const actor = vtkActor.newInstance();
   const mapper = vtkMapper.newInstance();
@@ -80,15 +108,12 @@ function renderVTKContent() {
   }
 
   const reader = vtkHttpDataSetReader.newInstance({ fetchGzip: true });
-  //const reader = vtkXMLImageDataReader.newInstance();
   marchingCube.setInputConnection(reader.getOutputPort());
 
   reader
-    .setUrl(`https://kitware.github.io/vtk-js/data/volume/headsq.vti`, {
+    .setUrl("https://kitware.github.io/vtk-js/data/volume/headsq.vti", {
       loadData: true,
     })
-    // reader
-    //   .setUrl(`./mri_ventricles.vti`)
     .then(() => {
       const data = reader.getOutputData();
       const dataRange = data.getPointData().getScalars().getRange();
@@ -111,8 +136,6 @@ function renderVTKContent() {
     .catch((error) => {
       console.error("Error loading VTI file:", error);
     });
-
-  //global.fullScreen = fullScreenRenderWindow;
   global.actor = actor;
   global.mapper = mapper;
   global.marchingCube = marchingCube;
@@ -390,4 +413,3 @@ function renderPolyContent() {
 }
 
 window.onload = renderVTKContent;
-//window.onload = renderItkContent;

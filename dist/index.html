@@ -7,18 +7,19 @@
     <link rel="stylesheet" href="styles.css">
     <style>
         body {
-            font-family: "Verdana", sans-serif;
+            font-family: "Gill Sans", sans-serif;
         }
     </style>
 </head>
 <body>
-<header style="background-color: #333; color: white; padding: 2px; display: flex; justify-content: center;">
-    <h1>Render IT</h1>
-</header>
-<div class="tab" style="overflow: hidden; border: 1px solid #ccc; background-color: #f1f1f1;">
+    <header style="background-color: #333; color: white; padding: 2px; display: flex; justify-content: space-between; align-items: center;">
+        <h1 style="margin-left: 45vw;">Render IT</h1>
+        <button onclick="openDialog(event)" style="margin-right: 15px;background-color: initial ;border: none; outline: none; color: aliceblue;">About</button>
+    </header>
+<div class="tab" style="overflow: hidden; border: 1px solid #ccc; background-color: lightgray ;">
     <button class="tablinks" onclick="openTab(event, 'vtkContent')" style="background-color: inherit; float: left; border: none; outline: none; cursor: pointer; padding: 14px 16px; transition: 0.3s;">Volume Contour</button>
     <button class="tablinks" onclick="openTab(event, 'itkContent')" style="background-color: inherit; float: left; border: none; outline: none; cursor: pointer; padding: 14px 16px; transition: 0.3s;">ITK-WASM Volume</button>
-    <button class="tablinks" onclick="openTab(event, 'polyContent')" style="background-color: inherit; float: left; border: none; outline: none; cursor: pointer; padding: 14px 16px; transition: 0.3s;">ITK-WASM Volume</button>
+    <button class="tablinks" onclick="openTab(event, 'polyContent')" style="background-color: inherit; float: left; border: none; outline: none; cursor: pointer; padding: 14px 16px; transition: 0.3s;">PolyData Render</button>
 </div>
 <div id="vtkContent" class="tabcontent">
 </div>
@@ -26,6 +27,20 @@
 </div>
 <div id="polyContent" class="tabcontent">
 </div>
+
+<dialog close id="info" style="position: absolute; top: 15vh; height:17vh; width: 20vw;">
+    <h3 style="text-align:center">About</h3>
+    <div>
+    <p style="text-align:center">
+        This application is developed for learning purposes, as a part of
+            University curriculum. You can find the code of the same in:
+    </p>
+</div>
+<div style="padding-top: 0.5vw; display: flex; justify-content: space-between;">
+    <a href="https://github.com/sdikshant89/my-vtkjs-app">GitHub Repository</a>
+    <button onclick="closeDialog(event)">Close</button></div>
+</dialog>
+
 <dialog open id="vtkContent_controlPanel" class="control-panel" style="position: absolute; top: 15vh; left: -85vw; ">
     <h3 style="padding-top: -10vh;">Control Panel</h3>
     <div>
@@ -41,6 +56,13 @@
         <label for="plane2Position" style="display: block; padding-top: 10px;">Plane 2 Position:</label>
         <input type="range" class="plane2Position" value="0" style="display: block;">
       </div>
+</dialog>
+
+<dialog open id="description" class="description" style="position: absolute; top: 75vh; left: 70vw; ">
+    <h3 style="padding-top: -10vh; text-align:center" id="dialogTitle">Volume Contour Rendering</h3>
+        <p id="dialogContent" style="width: 25vw;">
+            Volume Contour focuses on visualizing volumetric data by representing isocontours, which are surfaces of constant scalar value within the volume
+        </p>
 </dialog>
 
 <script src="./main.js"></script>
