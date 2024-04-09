@@ -280,7 +280,7 @@ function renderPolyContent() {
   const renderer = fullScreenRenderer.getRenderer();
   const renderWindow = fullScreenRenderer.getRenderWindow();
 
-  renderer.addActor(cubeActor);
+  //renderer.addActor(cubeActor);
 
   const ctfun = vtkColorTransferFunction.newInstance();
   ctfun.addRGBPoint(0, 85 / 255.0, 0, 0);
