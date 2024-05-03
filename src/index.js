@@ -83,7 +83,7 @@ function renderVTKContent() {
   vtkContainer.style.height = "90vh";
 
   const fullScreenRenderWindow = vtkFullScreenRenderWindow.newInstance({
-    background: [0, 0, 0],
+    background: [0, 0.3, 0.3],
     container: vtkContainer,
   });
 
@@ -127,11 +127,16 @@ function renderVTKContent() {
 
       marchingCube.setContourValue(firstIsoValue);
       renderer.addActor(actor);
+      renderer.getActiveCamera().zoom(1);
       renderer
         .getActiveCamera()
-        .set({ position: [1, 1, 1], viewUp: [0, 0, -1] });
+        .set({ position: [0, 1, 0], viewUp: [0, 0, -1] });
       renderer.resetCamera();
       renderWindow.render();
+      const abcdata = reader.getOutputData(); // Assuming the data is a polydata
+      console.log("Number of vertices:", abcdata.getNumberOfPoints());
+      console.log("Bounds:", abcdata.getBounds());
+      console.log("Dimensions:", abcdata.getDimensions());
     })
     .catch((error) => {
       console.error("Error loading VTI file:", error);
@@ -147,7 +152,7 @@ function renderItkContent() {
   itkContainer.style.height = "90vh";
 
   const fullScreenRenderer = vtkFullScreenRenderWindow.newInstance({
-    background: [0, 0, 0],
+    background: [0, 0.3, 0.3],
     container: itkContainer,
   });
   const renderer = fullScreenRenderer.getRenderer();
@@ -196,12 +201,21 @@ function renderItkContent() {
 
     const vtkImage = vtkITKHelper.convertItkToVtkImage(itkImage);
 
+    console.log("Dimensions:", vtkImage.getDimensions());
+    // You can log other properties like spacing, origin, etc.
+    console.log("Spacing:", vtkImage.getSpacing());
+    const dimensions = itkImage.size;
+    const numberOfVoxels = dimensions[0] * dimensions[1] * dimensions[2];
+    console.log("Number of Voxels:", numberOfVoxels);
+
     mapper.setInputData(vtkImage);
     renderer.addVolume(actor);
     renderer.resetCamera();
-    renderer.getActiveCamera().zoom(1.5);
+    renderer.getActiveCamera().zoom(1);
     renderer.getActiveCamera().elevation(70);
     renderer.updateLightsGeometryToFollowCamera();
+    renderer.getActiveCamera().set({ position: [0, 1, 0], viewUp: [0, 0, -1] });
+    renderer.resetCamera();
     renderWindow.render();
   }
   update();
@@ -219,7 +233,7 @@ function renderPolyContent() {
   polyContainer.style.height = "90vh";
 
   const fullScreenRenderer = vtkFullScreenRenderWindow.newInstance({
-    background: [0.3, 0.3, 0.3],
+    background: [0, 0.3, 0.3],
     container: polyContainer,
   });
 
@@ -346,6 +360,9 @@ function renderPolyContent() {
         sphereMapper.addClippingPlane(clipPlane2);
 
         renderer.addVolume(actor);
+        renderer
+          .getActiveCamera()
+          .set({ position: [0, 1, 0], viewUp: [0, 0, -1] });
         renderer.resetCamera();
 
         renderWindow.render();
@@ -403,6 +420,13 @@ function renderPolyContent() {
     clipPlane2.setOrigin(clipPlane2Origin);
     renderWindow.render();
   });
+
+  const data_poly = reader.getOutputData();
+  const numberOfVertices = data_poly.getBounds();
+  const numberOfPoints = data_poly.getPoints().getNumberOfPoints();
+  console.log("Number of vertices:", numberOfPoints);
+
+  console.log("Bounds:", numberOfVertices);
 
   global.source = reader;
   global.mapper = mapper;

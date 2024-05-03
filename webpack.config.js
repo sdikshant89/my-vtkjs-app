@@ -13,10 +13,7 @@ module.exports = {
     path: outputPath,
   },
   module: {
-    rules: [
-      { test: /\.html$/, loader: "html-loader" },
-      // { test: /\.css$/, loader: 'css-loader' },
-    ].concat(vtkRules),
+    rules: [{ test: /\.html$/, loader: "html-loader" }].concat(vtkRules),
   },
   resolve: {
     modules: [path.resolve(__dirname, "node_modules"), sourcePath],

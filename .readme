@@ -1,0 +1,39 @@
+# VTK.js Web Application
+
+This software empowers users to explore and visualize 3D VTI files, a data format supported by VTK. With this application, users can engage in 3D rendering through VTK.js, enabling immersive visualization experiences onto a lightweight web application.
+
+## Installation
+
+Use the node package manager [NPM](https://www.npmjs.com/) to install the app.
+
+1. Fork and then clone the repository from the [Link](https://github.com/sdikshant89/my-vtkjs-app)
+
+2. Once done open command prompt and follow the steps
+
+```bash
+npm install --save
+```
+
+## Usage
+
+Once you see the node modules directory being created in the root folder. follow the step to run the webpack module application.
+
+```
+npm run start
+```
+
+Once got the prompt you can then try to launch the application on any web browser, make sure its the latest updated version.
+
+hit the link: [http://localhost:8080/](http://localhost:8080/)
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first
+to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.
+
+## Troubleshooting
+
+1. Feel free to reach out at dikshan2@ualberta.ca
+2. make sure to use stable and updated version of node package manager
